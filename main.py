@@ -42,7 +42,7 @@ def root():
 
 
 # Line Webhook
-@app.post("/callback")
+@app.post("/line_callback")
 async def callback(request: Request, x_line_signature=Header(None)):
 
     body = await request.body()
