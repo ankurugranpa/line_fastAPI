@@ -4,8 +4,12 @@ from linebot import LineBotApi
 from linebot.models import TextSendMessage
 from linebot.exceptions import LineBotApiError
 from typing import Union
+
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import  FastAPI, Request, Header
+from pydantic import BaseModel, Field as PydanticField
+from pydantic.fields import Field
+# from fastapi import BaseModel
 
 from linebot.v3 import WebhookHandler
 from linebot.v3.exceptions import InvalidSignatureError
@@ -14,7 +18,8 @@ from linebot.v3.messaging import (
         ApiClient,
         MessagingApi,
         ReplyMessageRequest,
-        TextMessage
+        TextMessage,
+        PushMessageRequest
         )
 
 from linebot.v3.webhooks import (
@@ -34,11 +39,49 @@ handler = WebhookHandler(CHANNEL_SECLET)
 
 app = FastAPI(title="linebot-sample", description="connect scratch")
 
+origins = [
+    "http://localhost:8601",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Root
 @app.get("/")
 def root():
     return {"title": app.title, "description": app.description}
+
+
+class Item(BaseModel):
+    name: str
+    description: Union[str, None] = None
+    price: float
+    tax: Union[float, None] = None
+
+
+class Message(BaseModel):
+    message: str
+
+
+@app.post("/items/")
+async def create_item(item: Item):
+    print(item)
+    return item
+
+
+# send line message
+@app.post("/send_line/")
+async def send_message(message: Message):
+    print(message)
+    text = message.message
+    line_bot_api = LineBotApi(CHANNEL_ACCESS_TOKEN)
+    line_bot_api.push_message(USER_ID, TextSendMessage(text=text))
+    return message
 
 
 # Line Webhook
