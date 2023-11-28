@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "line-fastapi"
+version = "0.1.0"
+description = ""
+authors = ["ankuru <ankuru.ahahahaha@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+line-bot-sdk = "^3.5.1"
+fastapi = "^0.104.1"
+uvicorn = {extras = ["standard"], version = "^0.24.0.post1"}
+encord = "^0.1.98"
+async-timeout = "^4.0.3"
+python-dotenv = "^1.0.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
