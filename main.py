@@ -27,11 +27,14 @@ from linebot.v3.webhooks import (
     TextMessageContent
 )
 from starlette.exceptions import HTTPException
+from dotenv import load_dotenv
 
 # lineボット用の設定
+load_dotenv()
 CHANNEL_ACCESS_TOKEN = os.environ.get('LINE_CHANEL_API_KEY')
 USER_ID = os.environ.get('LINE_USER_ID')
 CHANNEL_SECLET = os.environ.get('LINE_CANNEL_SECLET')
+
 
 configuration = Configuration(access_token=CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(CHANNEL_SECLET)
