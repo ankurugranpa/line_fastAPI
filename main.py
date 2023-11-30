@@ -107,8 +107,8 @@ def handle_message(event):
     with ApiClient(configuration) as api_client:
         line_bot_api = MessagingApi(api_client)
         text = event.message.text
-        if text == "ちんちん":
-            text = "同じです"
+        if text == "あいうえお":
+            text = "同じです?"
         else:
             text = "違います"
         # print(event)
