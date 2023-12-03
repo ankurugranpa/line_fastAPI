@@ -1,5 +1,7 @@
 import os
 
+from api.routers import gpt
+
 from linebot import LineBotApi
 from linebot.models import TextSendMessage
 from linebot.exceptions import LineBotApiError
@@ -41,6 +43,7 @@ handler = WebhookHandler(CHANNEL_SECLET)
 
 
 app = FastAPI(title="linebot-sample", description="connect scratch")
+app.include_router(gpt.router)
 
 origins = [
     "http://localhost:8601",
