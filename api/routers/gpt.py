@@ -10,16 +10,6 @@ client = OpenAI(
     api_key=os.getenv('OPENAI_API_KEY')
 )
 
-@router.get("/task")
-async def list_tasks():
-    pass
-
-
-@router.post("/gpt_ask", response_model=gpt_schema.GptAskResponse)
-async def ask_gpt(gpt_body: gpt_schema.GptAsk):
-    # return gpt_schema.GptAskResponse(response=call_gpt(gpt_body.prompt, gpt_body.content), **gpt_body.dict())
-    return gpt_schema.GptAskResponse(response=call_gpt("富士山について熱く語って","あなたは博士です"), **gpt_body.dict())
-
 def call_gpt(question, prompt=None, lang="\n日本語で返答してください"):
     """
     access to openAI chat gpt
@@ -39,3 +29,14 @@ def call_gpt(question, prompt=None, lang="\n日本語で返答してください
         temperature=0
     )
     return response.choices[0].message.content
+
+@router.get("/task")
+async def list_tasks():
+    pass
+
+
+@router.post("/gpt_ask", response_model=gpt_schema.GptAskResponse)
+async def ask_gpt(gpt_body: gpt_schema.GptAsk):
+    # return gpt_schema.GptAskResponse(response=call_gpt(gpt_body.prompt, gpt_body.content), **gpt_body.dict())
+    # return gpt_schema.GptAskResponse(response=call_gpt("富士山について熱く語って", "あなたは博士です"), **gpt_body.dict())
+    return gpt_schema.GptAskResponse(response=call_gpt(gpt_body.content, gpt_body.prompt), **gpt_body.dict())
