@@ -1,6 +1,7 @@
 import os
+import  pprint
 
-from api.routers import line
+# from api.routers import line
 
 from linebot import LineBotApi
 from linebot.models import TextSendMessage
@@ -24,8 +25,12 @@ from linebot.v3.webhooks import (
 )
 from starlette.exceptions import HTTPException
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from typing import Union
+from sqlalchemy.ext.asyncio import  AsyncSession
+import  api.cruds.line as line_crud
+from api.db import  get_db
+from api.schemas import  line as   line_schema
 
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import  FastAPI, Request, Header
@@ -51,13 +56,21 @@ class Message(BaseModel):
     message: str
 
 
-@router.post("/send_line/")
-async def send_message(message: Message):
+@router.post("/tasks", response_model=line_schema.LinePull)
+async  def test_line(
+        line_body: line_schema.LinePush, db:AsyncSession =Depends(get_db)
+        ):
+            return  await line_crud.create_task(db, line_body)
+
+
+@router.post("/send_line/", response_model=line_schema.LineSendTextResponse)
+async def send_message(line_body: line_schema.LineSendText):
     # print(message)
-    text = message.message
+    # text = message.message
     line_bot_api = LineBotApi(CHANNEL_ACCESS_TOKEN)
-    line_bot_api.push_message(USER_ID, TextSendMessage(text=text))
-    return message
+    # line_bot_api.push_message(USER_ID, TextSendMessage(text=text))
+    line_bot_api.push_message(line_body.user_id, TextSendMessage(text=line_body.message))
+    return line_schema.LineSendTextResponse(status=200, **line_body.dict())
 
 
 @router.post("/line_callback")
@@ -74,20 +87,66 @@ async def callback(request: Request, x_line_signature=Header(None)):
     return "OK"
 
 
+# async def line_get(line_body: line_schema.LineGetMessage, db:AsyncSession =Depends(get_db)):
+
+
+@router.post("/tasks", response_model=line_schema.LinePull)
+async  def test_line(
+        line_body: line_schema.LinePush, db:AsyncSession =Depends(get_db)
+):
+    return  await line_crud.create_task(db, line_body)
+
 @handler.add(MessageEvent, message=TextMessageContent)
-def handle_message(event):
+# def line_get(line_body: line_schema.LineGetMessage, db:AsyncSession =Depends(get_db)):
+def line_get(event):
+    # , line_body: line_schema.LineGetMessage, db:AsyncSession =Depends(get_db)):
+    # db : AsyncSession =Depends(get_db)
+    # line_body: line_schema.LineGetMessage
+    test = line_schema.LineGetMessage
     with ApiClient(configuration) as api_client:
+        ip = api_client.configuration
+        # print(message)
+        print(type(event))
+        test.message = event.message.text
+        test.user_id = event.to_dict()['source']['userId']
         line_bot_api = MessagingApi(api_client)
-        text = event.message.text
-        if text == "あいうえお":
-            text = "同じです?"
-        else:
-            text = "違います"
-        # print(event)
         line_bot_api.reply_message_with_http_info(
             ReplyMessageRequest(
                 reply_token=event.reply_token,
+
+                # reply_token=MessageEvent.reply_token,
                 # messages=[TextMessage(text=event.message.text)]
-                messages=[TextMessage(text=text)]
+                messages=[TextMessage(text="受信しました")]
             )
         )
+    # await line_crud.add_message(AsyncSession =Depends(get_db),line_schema.LineGetMessage.message=message, line_schema.LineGetMessage.user_id=user_id)
+
+    return line_crud.add_message(Depends(get_db), test)
+
+
+
+
+# @handler.add(MessageEvent, message=TextMessageContent)
+# def handle_message(event):
+#     with ApiClient(configuration) as api_client:
+#         # ip = api_client.configuration.
+#         # print(event['source']['userId'])
+#         # pprint(event['source']['userId'])
+#         print(event.to_dict()['source']['userId'])
+# 
+# 
+#         line_bot_api = MessagingApi(api_client)
+#         # print(event.message)
+#         text = event.message.text
+#         if text == "あいうえお":
+#             text = "同じです?"
+#         else:
+#             text = "違います"
+#         # print(event)
+#         line_bot_api.reply_message_with_http_info(
+#             ReplyMessageRequest(
+#                 reply_token=event.reply_token,
+#                 # messages=[TextMessage(text=event.message.text)]
+#                 messages=[TextMessage(text=text)]
+#             )
+#         )
