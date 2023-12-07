@@ -55,6 +55,11 @@ handler = WebhookHandler(CHANNEL_SECLET)
 class Message(BaseModel):
     message: str
 
+async def set_db(
+        line_body: line_schema.LineGetMessage, db:AsyncSession =Depends(get_db)
+        ):
+    return await line_crud.add_message(db, line_body)
+
 
 @router.post("/tasks", response_model=line_schema.LinePull)
 async  def test_line(
@@ -96,6 +101,7 @@ async  def test_line(
 ):
     return  await line_crud.create_task(db, line_body)
 
+
 @handler.add(MessageEvent, message=TextMessageContent)
 # def line_get(line_body: line_schema.LineGetMessage, db:AsyncSession =Depends(get_db)):
 def line_get(event):
@@ -107,8 +113,8 @@ def line_get(event):
         ip = api_client.configuration
         # print(message)
         print(type(event))
-        test.message = event.message.text
-        test.user_id = event.to_dict()['source']['userId']
+        line_body = line_schema.LineGetMessage(user_id=event.message.text,
+                                               message=event.to_dict()['source']['userId'])
         line_bot_api = MessagingApi(api_client)
         line_bot_api.reply_message_with_http_info(
             ReplyMessageRequest(
@@ -121,7 +127,10 @@ def line_get(event):
         )
     # await line_crud.add_message(AsyncSession =Depends(get_db),line_schema.LineGetMessage.message=message, line_schema.LineGetMessage.user_id=user_id)
 
-    return line_crud.add_message(Depends(get_db), test)
+    # return line_crud.add_message(Depends(get_db), test)
+    # return set_db(line_body)
+
+
 
 
 
