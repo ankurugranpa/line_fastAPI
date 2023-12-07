@@ -23,6 +23,9 @@ class LineSendTextResponse(LineSendText):
     """
 class LineGetMessage(LineBase):
     message: str
+    class Config:
+       model_config = True
+
 
 class LinePush(LineTest):
     pass

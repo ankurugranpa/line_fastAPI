@@ -9,7 +9,7 @@ readme = "README.md"
 python = "^3.8"
 line-bot-sdk = "^3.5.1"
 fastapi = "^0.104.1"
-uvicorn = {extras = ["standard"], version = "^0.24.0.post1"}
+uvicorn = {extras = ["standerd"], version = "^0.24.0.post1"}
 encord = "^0.1.98"
 async-timeout = "^4.0.3"
 python-dotenv = "^1.0.0"
