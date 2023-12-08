@@ -1,5 +1,7 @@
 import os
+import requests
 import  pprint
+import asyncio
 
 # from api.routers import line
 
@@ -38,6 +40,7 @@ from pydantic import BaseModel, Field as PydanticField
 from pydantic.fields import Field
 from dotenv import load_dotenv
 
+
 router = APIRouter()
 
 # Setting Line Env
@@ -58,14 +61,19 @@ class Message(BaseModel):
 async def set_db(
         line_body: line_schema.LineGetMessage, db:AsyncSession =Depends(get_db)
         ):
-    return await line_crud.add_message(db, line_body)
+    return line_crud.add_message(db, line_body)
+def line_get2(line_body: line_schema.LineGetMessage):
+    return  set_db(line_body)
 
+def geturl_test():
+    # url = "http://localhost:8001/"
+    # url = "https://official-joke-api.appspot.com/jokes/random"
+    # url = "http://api.open-notify.org/iss-now.json"
+    # url = "https://jaguar-curious-conversely.ngrok-free.app/"
+    url = "https://a11f-216-171-126-102.ngrok-free.app/"
+    r = requests.get(url)
+    print(r.json())
 
-@router.post("/tasks", response_model=line_schema.LinePull)
-async  def test_line(
-        line_body: line_schema.LinePush, db:AsyncSession =Depends(get_db)
-        ):
-            return  await line_crud.create_task(db, line_body)
 
 
 @router.post("/send_line/", response_model=line_schema.LineSendTextResponse)
@@ -95,11 +103,6 @@ async def callback(request: Request, x_line_signature=Header(None)):
 # async def line_get(line_body: line_schema.LineGetMessage, db:AsyncSession =Depends(get_db)):
 
 
-@router.post("/tasks", response_model=line_schema.LinePull)
-async  def test_line(
-        line_body: line_schema.LinePush, db:AsyncSession =Depends(get_db)
-):
-    return  await line_crud.create_task(db, line_body)
 
 
 @handler.add(MessageEvent, message=TextMessageContent)
@@ -108,13 +111,15 @@ def line_get(event):
     # , line_body: line_schema.LineGetMessage, db:AsyncSession =Depends(get_db)):
     # db : AsyncSession =Depends(get_db)
     # line_body: line_schema.LineGetMessage
-    test = line_schema.LineGetMessage
+
+    # geturl_test()
     with ApiClient(configuration) as api_client:
         ip = api_client.configuration
         # print(message)
         print(type(event))
-        line_body = line_schema.LineGetMessage(user_id=event.message.text,
-                                               message=event.to_dict()['source']['userId'])
+        user_id = event.to_dict()['source']['userId']
+        message = event.message.text
+
         line_bot_api = MessagingApi(api_client)
         line_bot_api.reply_message_with_http_info(
             ReplyMessageRequest(
@@ -125,6 +130,17 @@ def line_get(event):
                 messages=[TextMessage(text="受信しました")]
             )
         )
+    url = "https://a11f-216-171-126-102.ngrok-free.app/line-db/test"
+    data ={"user_id": user_id,
+        "message": message}
+    r_post = requests.post(url, json=data)
+
+    # return test
+    # return  test()
+    print(event)
+    # return  geturl_test()
+    # return  print("test")
+
     # await line_crud.add_message(AsyncSession =Depends(get_db),line_schema.LineGetMessage.message=message, line_schema.LineGetMessage.user_id=user_id)
 
     # return line_crud.add_message(Depends(get_db), test)

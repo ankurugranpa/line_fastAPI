@@ -18,13 +18,13 @@ async def create_task(
     await db.refresh(task)
     return task
 
-async def add_message(
+def add_message(
     db: AsyncSession, line_add: line_schema.LineGetMessage
 ) -> line_model.Message:
     message =line_model.Message(**line_add.dict())
     db.add(message)
-    await db.commit()
-    await  db.refresh(message)
+    db.commit()
+    db.refresh(message)
     return message
 
 
