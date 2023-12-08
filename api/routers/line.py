@@ -130,7 +130,7 @@ def line_get(event):
                 messages=[TextMessage(text="受信しました")]
             )
         )
-    url = "https://a11f-216-171-126-102.ngrok-free.app/line-db/test"
+    url = "https://5977-216-171-126-102.ngrok-free.app/line-db/test"
     data ={"user_id": user_id,
         "message": message}
     r_post = requests.post(url, json=data)
