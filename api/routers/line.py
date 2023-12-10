@@ -65,14 +65,6 @@ async def set_db(
 def line_get2(line_body: line_schema.LineGetMessage):
     return  set_db(line_body)
 
-def geturl_test():
-    # url = "http://localhost:8001/"
-    # url = "https://official-joke-api.appspot.com/jokes/random"
-    # url = "http://api.open-notify.org/iss-now.json"
-    # url = "https://jaguar-curious-conversely.ngrok-free.app/"
-    url = "https://a11f-216-171-126-102.ngrok-free.app/"
-    r = requests.get(url)
-    print(r.json())
 
 
 
@@ -130,7 +122,7 @@ def line_get(event):
                 messages=[TextMessage(text="受信しました")]
             )
         )
-    url = "https://5977-216-171-126-102.ngrok-free.app/line-db/test"
+    url = "https://874e-216-171-126-102.ngrok-free.app/line-db/test"
     data ={"user_id": user_id,
         "message": message}
     r_post = requests.post(url, json=data)
