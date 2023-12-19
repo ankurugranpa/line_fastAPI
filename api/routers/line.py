@@ -1,4 +1,6 @@
 import os
+
+import linebot.v3.webhooks
 import requests
 import  pprint
 import asyncio
@@ -7,6 +9,11 @@ import asyncio
 
 from linebot import LineBotApi
 from linebot.models import TextSendMessage
+from linebot.models import ImageSendMessage
+from linebot.models import AudioSendMessage
+from linebot.models import  ImageMessage
+from linebot.models import  AudioMessage
+from linebot.models.messages import ContentProvider
 from linebot.exceptions import LineBotApiError
 # from fastapi import BaseModel
 
@@ -18,13 +25,17 @@ from linebot.v3.messaging import (
         MessagingApi,
         ReplyMessageRequest,
         TextMessage,
+        MessagingApiBlob,
         PushMessageRequest
         )
 
 from linebot.v3.webhooks import (
     MessageEvent,
-    TextMessageContent
+    TextMessageContent,
+    ImageMessageContent,
+    AudioMessageContent
 )
+
 from starlette.exceptions import HTTPException
 
 from fastapi import APIRouter, Depends
@@ -74,7 +85,11 @@ async def send_message(line_body: line_schema.LineSendText):
     # text = message.message
     line_bot_api = LineBotApi(CHANNEL_ACCESS_TOKEN)
     # line_bot_api.push_message(USER_ID, TextSendMessage(text=text))
-    line_bot_api.push_message(line_body.user_id, TextSendMessage(text=line_body.message))
+    # line_bot_api.push_message(line_body.user_id, TextSendMessage(text=line_body.message))
+    # ContentProvider("https://ahahahaha.blob.core.windows.net/line-png-test/hare.mp3")
+    #  audio = ContentProvider(type="audio",  original_content_url="https://www.ne.jp/asahi/music/myuu/wave/menuettm.mp3")
+
+    line_bot_api.push_message(to=line_body.user_id, messages=AudioSendMessage(content_provider="https://ahahahaha.blob.core.windows.net/line-png-test/hare.mp3", duration=1900))
     return line_schema.LineSendTextResponse(status=200, **line_body.dict())
 
 
@@ -82,7 +97,7 @@ async def send_message(line_body: line_schema.LineSendText):
 async def callback(request: Request, x_line_signature=Header(None)):
 
     body = await request.body()
-
+    # print(body)
     try:
         handler.handle(body.decode("utf-8"), x_line_signature)
 
@@ -91,79 +106,68 @@ async def callback(request: Request, x_line_signature=Header(None)):
 
     return "OK"
 
-
 # async def line_get(line_body: line_schema.LineGetMessage, db:AsyncSession =Depends(get_db)):
-
-
-
 
 @handler.add(MessageEvent, message=TextMessageContent)
 # def line_get(line_body: line_schema.LineGetMessage, db:AsyncSession =Depends(get_db)):
-def line_get(event):
-    # , line_body: line_schema.LineGetMessage, db:AsyncSession =Depends(get_db)):
-    # db : AsyncSession =Depends(get_db)
-    # line_body: line_schema.LineGetMessage
-
+async def line_get(event):
     # geturl_test()
     with ApiClient(configuration) as api_client:
         ip = api_client.configuration
         # print(message)
-        print(type(event))
+        # print(type(event))
         user_id = event.to_dict()['source']['userId']
         message = event.message.text
 
         line_bot_api = MessagingApi(api_client)
-        line_bot_api.reply_message_with_http_info(
+        ulr_imag="https://ahahahaha.blob.core.windows.net/line-png-test/zennketugou2.png"
+        # line_bot_api.reply_message_with_http_info(
+        url = "https://ahahahaha.blob.core.windows.net/line-png-test/hare.mp3"
+        line_bot_api.reply_message(
             ReplyMessageRequest(
                 reply_token=event.reply_token,
-
-                # reply_token=MessageEvent.reply_token,
-                # messages=[TextMessage(text=event.message.text)]
-                messages=[TextMessage(text="受信しました")]
+                messages=[
+                    # ImageMessage(original_content_url=url, preview_image_url=url)
+                    # TextMessage(text="受信しました"),
+                    AudioMessage(original_content_url=url, duration=1900)
+                ]
             )
         )
-    url = "https://874e-216-171-126-102.ngrok-free.app/line-db/test"
-    data ={"user_id": user_id,
-        "message": message}
-    r_post = requests.post(url, json=data)
-
-    # return test
-    # return  test()
+        # message_test=ImageMessage(original_content_url=ulr_imag, preview_image_url=ulr_imag)
+        # line_bot_api.reply_message(
+        #     ReplyMessageRequest(
+        #         reply_token=event.reply_token,
+        #         # me
+        #         message=[ImageMessage(original_content_url=ulr_imag, preview_image_url=ulr_imag)]
+        #         # messages=[message_test]
+        #         # reply_token=MessageEvent.reply_token,
+        #         # messages=[TextMessage(text=event.message.text)]
+        #         # messages=[TextMessage(text="受信しました")]
+        #         # messags=[Audi]
+        #         # ImageSendMessage(original_content_url=ulr_imag, preview_image_url=ulr_imag)
+        #         # messages=[AudioMessage(content_provider="https://ahahahaha.blob.core.windows.net/line-png-test/hare.mp3", duration=137000)]
+        #     )
+        # )
+    url = "https://9ac3-216-171-126-102.ngrok-free.app/line-db/test"
+    # data ={"user_id": user_id,
+      #  "message": message}
+    # r_post = requests.post(url, json=data)
     print(event)
-    # return  geturl_test()
-    # return  print("test")
 
-    # await line_crud.add_message(AsyncSession =Depends(get_db),line_schema.LineGetMessage.message=message, line_schema.LineGetMessage.user_id=user_id)
+@handler.add(MessageEvent, message=AudioMessageContent)
+def line_get_audio(event):
+    print("Get Audio !!!!")
+    with ApiClient(configuration) as api_client:
+        api_instance = MessagingApiBlob(api_client)
+        print(api_instance)
 
-    # return line_crud.add_message(Depends(get_db), test)
-    # return set_db(line_body)
+@handler.add(MessageEvent, message=ImageMessageContent)
+def line_get_image(event):
+    print(event)
+    message_id = event.to_dict()['message']['id']
+    print(message_id)
 
-
-
-
-
-
-# @handler.add(MessageEvent, message=TextMessageContent)
-# def handle_message(event):
-#     with ApiClient(configuration) as api_client:
-#         # ip = api_client.configuration.
-#         # print(event['source']['userId'])
-#         # pprint(event['source']['userId'])
-#         print(event.to_dict()['source']['userId'])
-# 
-# 
-#         line_bot_api = MessagingApi(api_client)
-#         # print(event.message)
-#         text = event.message.text
-#         if text == "あいうえお":
-#             text = "同じです?"
-#         else:
-#             text = "違います"
-#         # print(event)
-#         line_bot_api.reply_message_with_http_info(
-#             ReplyMessageRequest(
-#                 reply_token=event.reply_token,
-#                 # messages=[TextMessage(text=event.message.text)]
-#                 messages=[TextMessage(text=text)]
-#             )
-#         )
+    print("Get Image !!!!")
+    with ApiClient(configuration) as api_client:
+        api_instance = MessagingApiBlob(api_client)
+        print(api_instance)

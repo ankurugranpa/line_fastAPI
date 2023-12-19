@@ -17,6 +17,7 @@ app.include_router(line.router)
 
 origins = [
     "http://localhost:8601",
+    "https://9ac3-216-171-126-102.ngrok-free.app"
 ]
 
 app.add_middleware(
