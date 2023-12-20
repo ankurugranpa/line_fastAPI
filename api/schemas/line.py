@@ -6,14 +6,23 @@ from pydantic import BaseModel, Field
 class LineBase(BaseModel):
     user_id: str
 
+class LineResponseBase(BaseModel):
+    status: int
 
-class LineTest(BaseModel):
-    text_message: str
 
 class LineSendText(LineBase):
     message: str
 
+class LineSendAudio(LineBase):
+    audio_url: str
+    duration: int
+
+
 class LineSendTextResponse(LineSendText):
+    status: int
+
+
+class LineSendAudioResponse(LineSendAudio):
     status: int
 
     """
@@ -25,14 +34,3 @@ class LineGetMessage(LineBase):
     message: str
     class Config:
        model_config = True
-
-
-class LinePush(LineTest):
-    pass
-
-
-class LinePull(LineTest):
-    id: int
-    class Config:
-       model_config = True
-

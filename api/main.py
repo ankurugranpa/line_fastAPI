@@ -9,11 +9,13 @@ from pydantic.fields import Field
 
 from api.routers import gpt
 from api.routers import line
+from api.routers import blob
 
 
 app = FastAPI(title="linebot-sample", description="connect scratch")
 app.include_router(gpt.router)
 app.include_router(line.router)
+app.include_router(blob.router)
 
 origins = [
     "http://localhost:8601",
