@@ -50,7 +50,10 @@ from pydantic.fields import Field
 from dotenv import load_dotenv
 
 
-router = APIRouter()
+router = APIRouter(
+        prefix='/line',
+        tags=['Line']
+        )
 
 # Setting Line Env
 load_dotenv()
@@ -74,29 +77,25 @@ def line_get2(line_body: line_schema.LineGetMessage):
 
 
 # Send Line Text Message
-@router.post("/send_line/", response_model=line_schema.LineSendTextResponse)
+@router.post("/send-line", response_model=line_schema.LineSendTextResponse)
 async def send_message(line_body: line_schema.LineSendText):
     line_bot_api = LineBotApi(CHANNEL_ACCESS_TOKEN)
-    line_bot_api.push_message(line_body.user_id, TextSendMessage(text=line_body.message))
+    line_bot_api.push_message(line_body.user_id,
+                              TextSendMessage(text=line_body.message))
     return line_schema.LineSendTextResponse(status=200, **line_body.dict())
 
 # Send Line Audio Message
-@router.post("/line/send_audio/", response_model=line_schema.LineSendAudioResponse)
+@router.post("/send-audio", response_model=line_schema.LineSendAudioResponse)
 async def send_audio(line_body: line_schema.LineSendAudio):
     line_bot_api = LineBotApi(CHANNEL_ACCESS_TOKEN)
     # line_bot_api.push_message(line_body.user_id, TextSendMessage(text=line_body.message))
-    line_bot_api.push_message(line_body.user_id, AudioSendMessage(original_content_url=line_body.audio_url, duration=line_body.duration))
-    return line_schema.LineSendTextResponse(status=200, **line_body.dict())
-
-@router.post("/line/send_audio/", response_model=line_schema.LineSendAudioResponse)
-async def send_audio(line_body: line_schema.LineSendAudio):
-    line_bot_api = LineBotApi(CHANNEL_ACCESS_TOKEN)
-    # line_bot_api.push_message(line_body.user_id, TextSendMessage(text=line_body.message))
-    line_bot_api.push_message(line_body.user_id, AudioSendMessage(original_content_url=line_body.audio_url, duration=line_body.duration))
+    line_bot_api.push_message(line_body.user_id,
+                              AudioSendMessage(original_content_url=line_body.audio_url, duration=line_body.duration))
     return line_schema.LineSendTextResponse(status=200, **line_body.dict())
 
 
-@router.post("/line_callback")
+
+@router.post("/callback")
 async def callback(request: Request, x_line_signature=Header(None)):
 
     body = await request.body()

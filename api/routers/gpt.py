@@ -3,7 +3,10 @@ from fastapi import APIRouter
 import  api.schemas.gpt as gpt_schema
 from openai import  OpenAI
 from dotenv import load_dotenv
-router = APIRouter()
+router = APIRouter(
+        prefix='/gpt',
+        tags=['Gpt']
+        )
 
 load_dotenv()
 client = OpenAI(
@@ -35,7 +38,7 @@ def call_gpt(question,
     return response.choices[0].message.content
 
 
-@router.post("/gpt_ask", response_model=gpt_schema.GptAskResponse)
+@router.post("/gpt-ask", response_model=gpt_schema.GptAskResponse)
 async def ask_gpt(gpt_body: gpt_schema.GptAsk):
     """
     Request Gpt respons

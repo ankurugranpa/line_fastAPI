@@ -12,7 +12,7 @@ from api.routers import line
 from api.routers import blob
 
 
-app = FastAPI(title="linebot-sample", description="connect scratch")
+app = FastAPI(title="ConnectionAPI for Scratch", description="Connect anything searvice")
 app.include_router(gpt.router)
 app.include_router(line.router)
 app.include_router(blob.router)
@@ -34,16 +34,3 @@ app.add_middleware(
 @app.get("/")
 def root():
     return {"title": app.title, "description": app.description}
-
-
-class Item(BaseModel):
-    name: str
-    description: Union[str, None] = None
-    price: float
-    tax: Union[float, None] = None
-
-
-@app.post("/items/")
-async def create_item(item: Item):
-    print(item)
-    return item
