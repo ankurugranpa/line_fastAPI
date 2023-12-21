@@ -38,7 +38,7 @@ def call_gpt(question,
     return response.choices[0].message.content
 
 
-@router.post("/gpt-ask", response_model=gpt_schema.GptAskResponse)
+@router.post("/ask", response_model=gpt_schema.GptAskResponse)
 async def ask_gpt(gpt_body: gpt_schema.GptAsk):
     """
     Request Gpt respons
