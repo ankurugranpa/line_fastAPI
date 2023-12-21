@@ -8,9 +8,12 @@ import asyncio
 # from api.routers import line
 
 from linebot import LineBotApi
-from linebot.models import TextSendMessage
-from linebot.models import ImageSendMessage
-from linebot.models import AudioSendMessage
+from linebot.models import (
+    AudioSendMessage,
+    TextSendMessage,
+    ImageSendMessage,
+    VideoSendMessage
+    )
 from linebot.models import  ImageMessage
 from linebot.models.messages import ContentProvider
 from linebot.exceptions import LineBotApiError
@@ -33,7 +36,8 @@ from linebot.v3.webhooks import (
     MessageEvent,
     TextMessageContent,
     ImageMessageContent,
-    AudioMessageContent
+    AudioMessageContent,
+    VideoMessageContent
 )
 
 from starlette.exceptions import HTTPException
@@ -57,10 +61,10 @@ router = APIRouter(
 
 # Setting Line Env
 load_dotenv()
-# test vierv
 CHANNEL_ACCESS_TOKEN = os.environ.get('LINE_CHANEL_API_KEY')
 USER_ID = os.environ.get('LINE_USER_ID')
 CHANNEL_SECLET = os.environ.get('LINE_CANNEL_SECLET')
+DB_URL = os.environ.get('DB_BASE_URL')
 
 
 configuration = Configuration(access_token=CHANNEL_ACCESS_TOKEN)
@@ -70,30 +74,40 @@ handler = WebhookHandler(CHANNEL_SECLET)
 class Message(BaseModel):
     message: str
 
-def line_get2(line_body: line_schema.LineGetMessage):
-    return  set_db(line_body)
-
-
-
 
 # Send Line Text Message
-@router.post("/send-line", response_model=line_schema.LineSendTextResponse)
+@router.post("/text", response_model=line_schema.LineSendResponse)
 async def send_message(line_body: line_schema.LineSendText):
     line_bot_api = LineBotApi(CHANNEL_ACCESS_TOKEN)
     line_bot_api.push_message(line_body.user_id,
                               TextSendMessage(text=line_body.message))
-    return line_schema.LineSendTextResponse(status=200, **line_body.dict())
+    return line_schema.LineSendResponse(status=200, **line_body.dict())
 
 # Send Line Audio Message
-@router.post("/send-audio", response_model=line_schema.LineSendAudioResponse)
+@router.post("/audio", response_model=line_schema.LineSendResponse)
 async def send_audio(line_body: line_schema.LineSendAudio):
     line_bot_api = LineBotApi(CHANNEL_ACCESS_TOKEN)
     # line_bot_api.push_message(line_body.user_id, TextSendMessage(text=line_body.message))
     line_bot_api.push_message(line_body.user_id,
                               AudioSendMessage(original_content_url=line_body.audio_url, duration=line_body.duration))
-    return line_schema.LineSendTextResponse(status=200, **line_body.dict())
+    return line_schema.LineSendResponse(status=200, **line_body.dict())
+
+# Send Line Image Message
+@router.post("/image", response_model=line_schema.LineSendResponse)
+async def send_audio(line_body: line_schema.LineSendImage):
+    line_bot_api = LineBotApi(CHANNEL_ACCESS_TOKEN)
+    line_bot_api.push_message(line_body.user_id,
+                                ImageSendMessage(original_content_url=line_body.image_url, preview_image_url=line_body.preview_image_url))
+    return line_schema.LineSendResponse(status=200, **line_body.dict())
 
 
+# Send Line Image Message
+@router.post("/video", response_model=line_schema.LineSendResponse)
+async def send_audio(line_body: line_schema.LineSendVideo):
+    line_bot_api = LineBotApi(CHANNEL_ACCESS_TOKEN)
+    line_bot_api.push_message(line_body.user_id,
+                              VideoSendMessage(original_content_url=line_body.video_url, preview_image_url=line_body.preview_video_url))
+    return line_schema.LineSendResponse(status=200, **line_body.dict())
 
 @router.post("/callback")
 async def callback(request: Request, x_line_signature=Header(None)):
@@ -131,7 +145,7 @@ def line_get(event):
                 ]
             )
         )
-    url = "https://9ac3-216-171-126-102.ngrok-free.app/line-db/test"
+    url = f"{DB_URL}/line-db/test"
 
     data ={"user_id": user_id,
            "message": message}
