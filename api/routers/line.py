@@ -64,7 +64,7 @@ load_dotenv()
 CHANNEL_ACCESS_TOKEN = os.environ.get('LINE_CHANEL_API_KEY')
 USER_ID = os.environ.get('LINE_USER_ID')
 CHANNEL_SECLET = os.environ.get('LINE_CANNEL_SECLET')
-DB_URL = os.environ.get('DB_BASE_URL')
+DB_API_URL = os.environ.get('DB_API_URL')
 
 
 configuration = Configuration(access_token=CHANNEL_ACCESS_TOKEN)
@@ -135,6 +135,7 @@ def line_get(event):
         line_bot_api = MessagingApi(api_client)
         # line_bot_api.reply_message_with_http_info(
         # url = "https://ahahahaha.blob.core.windows.net/line-png-test/hare.mp3"
+        print(f"{DB_API_URL}/line-db/test")
         line_bot_api.reply_message(
             ReplyMessageRequest(
                 reply_token=event.reply_token,
@@ -145,7 +146,7 @@ def line_get(event):
                 ]
             )
         )
-    url = f"{DB_URL}/line-db/test"
+    url = f"{DB_API_URL}/line-db/test"
 
     data ={"user_id": user_id,
            "message": message}
