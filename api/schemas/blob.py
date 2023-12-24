@@ -3,15 +3,9 @@ from enum import Enum
 from pydantic import  BaseModel, Field
 from typing import Optional, Union
 
-class TypeName(Enum):
-    audio = "audio"
-    video = "video"
-    image = "image"
-
-
 
 class BlobBase(BaseModel):
-    type: TypeName = Field(description="Content Type", example="audio")
+    type: str = Field(description="Content Type", example="audio, video, image")
 
 
 class GetBlobUrl(BlobBase):

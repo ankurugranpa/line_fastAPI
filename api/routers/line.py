@@ -131,22 +131,25 @@ def line_get(event):
     with ApiClient(configuration) as api_client:
         user_id = event.to_dict()['source']['userId']
         message = event.message.text
+        print(user_id)
 
         line_bot_api = MessagingApi(api_client)
         # line_bot_api.reply_message_with_http_info(
         # url = "https://ahahahaha.blob.core.windows.net/line-png-test/hare.mp3"
-        print(f"{DB_API_URL}/line-db/test")
+        response_text=user_id
         line_bot_api.reply_message(
             ReplyMessageRequest(
                 reply_token=event.reply_token,
                 messages=[
                     # ImageMessage(original_content_url=url, preview_image_url=url)
-                    TextMessage(text="受信しました"),
+                    TextMessage(text=response_text),
                     # AudioMessage(original_content_url=url, duration=1900)
                 ]
             )
         )
-    url = f"{DB_API_URL}/line-db/test"
+    # url = f"{DB_API_URL}/line-db/test"
+    # url = f"http://localhost:8001/line-db/test"
+    url = "https://7548-133-24-119-235.ngrok-free.app"
 
     data ={"user_id": user_id,
            "message": message}

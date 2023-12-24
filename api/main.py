@@ -1,4 +1,5 @@
 from typing import Union
+import  os
 
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import  FastAPI, Request, Header
@@ -10,6 +11,9 @@ from pydantic.fields import Field
 from api.routers import gpt
 from api.routers import line
 from api.routers import blob
+from dotenv import load_dotenv
+load_dotenv()
+SCRATCH_URL = os.environ.get('SCRATCH_URL')
 
 
 app = FastAPI(title="ConnectionAPI for Scratch", description="Connect anything searvice")
@@ -18,8 +22,10 @@ app.include_router(line.router)
 app.include_router(blob.router)
 
 origins = [
+    "http://localhost:*",
+    "https://*.ngrok-free.app",
+    SCRATCH_URL,
     "http://localhost:8601",
-    "https://9ac3-216-171-126-102.ngrok-free.app"
 ]
 
 app.add_middleware(
@@ -33,4 +39,5 @@ app.add_middleware(
 # Root
 @app.get("/")
 def root():
+    print(SCRATCH_URL)
     return {"title": app.title, "description": app.description}
